@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
+import classNames from 'classnames'
 import { useSearchParams } from 'next/navigation'
 
 import { Message } from '../Message'
@@ -11,7 +12,7 @@ export type Props = {
   params?: string[]
   message?: string
   className?: string
-  onParams?: (paramValues: ((string | null | undefined) | string[])[]) => void
+  onParams?: (paramValues: (string | null | undefined)[]) => void
 }
 
 export const RenderParamsComponent: React.FC<Props> = ({
@@ -20,7 +21,12 @@ export const RenderParamsComponent: React.FC<Props> = ({
   onParams,
 }) => {
   const searchParams = useSearchParams()
-  const paramValues = params.map(param => searchParams?.get(param))
+
+  // `useMemo` ile `paramValues`'un hesaplanması
+  const paramValues = useMemo(
+    () => params.map(param => searchParams?.get(param)),
+    [searchParams, params],
+  )
 
   useEffect(() => {
     if (paramValues.length && onParams) {
@@ -28,25 +34,19 @@ export const RenderParamsComponent: React.FC<Props> = ({
     }
   }, [paramValues, onParams])
 
-  if (paramValues.length) {
-    return (
-      <div className={className}>
-        {paramValues.map((paramValue, index) => {
-          if (!paramValue) return null
+  if (!paramValues.some(value => value)) return null
 
-          return (
-            <Message
-              className={classes.renderParams}
-              key={paramValue}
-              {...{
-                [params[index]]: paramValue,
-              }}
-            />
-          )
-        })}
-      </div>
-    )
-  }
-
-  return null
+  return (
+    <div className={classNames(className, classes.renderParamsContainer)}>
+      {paramValues.map((paramValue, index) =>
+        paramValue ? (
+          <Message
+            className={classes.renderParams}
+            key={params[index]}
+            {...{ [params[index]]: paramValue }}
+          />
+        ) : null,
+      )}
+    </div>
+  )
 }

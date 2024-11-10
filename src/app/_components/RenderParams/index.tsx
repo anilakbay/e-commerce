@@ -2,14 +2,14 @@ import { Suspense } from 'react'
 
 import { Props, RenderParamsComponent } from './Component'
 
-// Using `useSearchParams` from `next/navigation` causes the entire route to de-optimize into client-side rendering
-// To fix this, we wrap the component in a `Suspense` component
-// See https://nextjs.org/docs/messages/deopted-into-client-rendering for more info
-
-export const RenderParams: React.FC<Props> = props => {
-  return (
-    <Suspense fallback={null}>
-      <RenderParamsComponent {...props} />
-    </Suspense>
-  )
-}
+/**
+ * RenderParams bileşeni, `RenderParamsComponent` bileşenini `Suspense` içinde sarar.
+ * `useSearchParams` kullanımı nedeniyle, Next.js bu bileşeni istemci tarafında render etmeye zorlar.
+ * `Suspense` ile bu bileşen yavaş yükleme durumlarında fallback sağlar.
+ * Daha fazla bilgi için: https://nextjs.org/docs/messages/deopted-into-client-rendering
+ */
+export const RenderParams: React.FC<Props> = props => (
+  <Suspense fallback={null}>
+    <RenderParamsComponent {...props} />
+  </Suspense>
+)

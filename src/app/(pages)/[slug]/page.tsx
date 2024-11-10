@@ -1,96 +1,98 @@
-import React from 'react'
 import { Metadata } from 'next'
 import { draftMode } from 'next/headers'
 import { notFound } from 'next/navigation'
 
-import { Page } from '../../../payload/payload-types'
+// Sayfa tipi için PageType adını kullanalım
+import type { Page as PageType } from '../../../payload/payload-types'
+import { Category } from '../../../payload/payload-types'
 import { staticHome } from '../../../payload/seed/home-static'
 import { fetchDoc } from '../../_api/fetchDoc'
 import { fetchDocs } from '../../_api/fetchDocs'
 import { Blocks } from '../../_components/Blocks'
+import Categories from '../../_components/Categories'
+import { Gutter } from '../../_components/Gutter'
 import { Hero } from '../../_components/Hero'
+import Promotion from '../../_components/Promotion'
 import { generateMeta } from '../../_utilities/generateMeta'
 
-// Payload Cloud caches all files through Cloudflare, so we don't need Next.js to cache them as well
-// This means that we can turn off Next.js data caching and instead rely solely on the Cloudflare CDN
-// To do this, we include the `no-cache` header on the fetch requests used to get the data for this page
-// But we also need to force Next.js to dynamically render this page on each request for preview mode to work
-// See https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config#dynamic
-// If you are not using Payload Cloud then this line can be removed, see `../../../README.md#cache`
-export const dynamic = 'force-dynamic'
+import classes from './index.module.scss'
 
-export default async function Page({ params: { slug = 'home' } }) {
-  const { isEnabled: isDraftMode } = draftMode()
+export const dynamic = 'force-dynamic' // Payload Cloud CDN için dinamik önbellekleme
 
-  let page: Page | null = null
-
+// Sayfa verilerini sunucu tarafında yükle
+async function loadPageData(slug: string, isDraftMode: boolean): Promise<PageType | null> {
   try {
-    page = await fetchDoc<Page>({
-      collection: 'pages',
-      slug,
-      draft: isDraftMode,
-    })
+    const page = await fetchDoc<PageType>({ collection: 'pages', slug, draft: isDraftMode })
+    return page || (slug === 'home' ? staticHome : null)
   } catch (error) {
-    // when deploying this template on Payload Cloud, this page needs to build before the APIs are live
-    // so swallow the error here and simply render the page with fallback data where necessary
-    // in production you may want to redirect to a 404  page or at least log the error somewhere
-    // console.error(error)
+    console.error('Sayfa verileri alınırken hata oluştu:', error)
+    return slug === 'home' ? staticHome : null
   }
+}
 
-  // if no `home` page exists, render a static one using dummy content
-  // you should delete this code once you have a home page in the CMS
-  // this is really only useful for those who are demoing this template
-  if (!page && slug === 'home') {
-    page = staticHome
+// Kategori verilerini sunucu tarafında yükle
+async function loadCategories(): Promise<Category[]> {
+  try {
+    return await fetchDocs<Category>('categories')
+  } catch (error) {
+    console.error('Kategori verileri alınırken hata oluştu:', error)
+    return []
   }
+}
 
-  if (!page) {
-    return notFound()
-  }
-
-  const { hero, layout } = page
-
+// Ana sayfa içeriği
+function HomeContent({ hero, categories }: { hero: any; categories: Category[] }) {
   return (
-    <React.Fragment>
+    <section>
+      <Hero {...hero} />
+      <Gutter className={classes.home}>
+        <Categories categories={categories} />
+        <Promotion />
+      </Gutter>
+    </section>
+  )
+}
+
+// Sayfa içeriği
+function PageContent({ hero, layout }: { hero: any; layout: any }) {
+  return (
+    <>
       <Hero {...hero} />
       <Blocks
         blocks={layout}
         disableTopPadding={!hero || hero?.type === 'none' || hero?.type === 'lowImpact'}
       />
-    </React.Fragment>
+    </>
   )
 }
 
+// Sayfa bileşeni (sunucu tarafında veri çekme)
+export default async function PageComponent({ params: { slug = 'home' } }) {
+  const isDraftMode = draftMode().isEnabled
+  const page = await loadPageData(slug, isDraftMode)
+  const categories = await loadCategories()
+
+  if (!page) return notFound()
+
+  return slug === 'home' ? (
+    <HomeContent hero={page.hero} categories={categories} />
+  ) : (
+    <PageContent hero={page.hero} layout={page.layout} />
+  )
+}
+
+// Statik parametreler
 export async function generateStaticParams() {
   try {
-    const pages = await fetchDocs<Page>('pages')
-    return pages?.map(({ slug }) => slug)
-  } catch (error) {
+    const pages = await fetchDocs<PageType>('pages')
+    return pages.map(({ slug }) => slug)
+  } catch {
     return []
   }
 }
 
+// Metadata oluşturma
 export async function generateMetadata({ params: { slug = 'home' } }): Promise<Metadata> {
-  const { isEnabled: isDraftMode } = draftMode()
-
-  let page: Page | null = null
-
-  try {
-    page = await fetchDoc<Page>({
-      collection: 'pages',
-      slug,
-      draft: isDraftMode,
-    })
-  } catch (error) {
-    // don't throw an error if the fetch fails
-    // this is so that we can render a static home page for the demo
-    // when deploying this template on Payload Cloud, this page needs to build before the APIs are live
-    // in production you may want to redirect to a 404  page or at least log the error somewhere
-  }
-
-  if (!page && slug === 'home') {
-    page = staticHome
-  }
-
+  const page = await loadPageData(slug, draftMode().isEnabled)
   return generateMeta({ doc: page })
 }
