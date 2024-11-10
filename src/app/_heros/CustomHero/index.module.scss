@@ -1,0 +1,94 @@
+@import '../../_css/queries.scss'; // External media queries import
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+
+  @include small-break {
+    margin: 0;
+  }
+}
+
+.heroWrapper {
+  background-color: var(--color-dark-50);
+  width: 100%;
+  max-width: 1560px;
+  max-height: 884px;
+  display: flex;
+  align-items: center;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  // Responsive adjustments for small breakpoints
+  @include small-break {
+    background-position: center;
+    background-size: cover;
+  }
+}
+
+.heroTextBox {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 15% var(--gutter-h);
+  width: 100%;
+
+  // Mid and small breakpoint adjustments
+  @include mid-break {
+    padding: 10% 30px;
+  }
+
+  @include small-break {
+    padding: 50px 30px;
+  }
+
+  h2 {
+    font-size: 70px;
+    margin: 32px 0;
+
+    // Adjust heading size and margins for mid-break
+    @include mid-break {
+      font-size: 48px;
+      margin: 24px 0;
+      white-space: normal; // 'wrap' is not a valid value for white-space
+    }
+
+    // Adjust heading size for small-break
+    @include small-break {
+      width: 70%;
+      font-size: 36px;
+      margin: 8px 0;
+    }
+  }
+
+  p {
+    font-size: 30px;
+
+    // Adjust paragraph size for mid-break and small-break
+    @include mid-break {
+      font-size: 24px;
+    }
+
+    @include small-break {
+      font-size: 18px;
+    }
+  }
+}
+
+.links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  padding-top: 50px;
+  margin: calc(var(--base) * -0.5);
+
+  // Add spacing for each link item
+  & > * {
+    margin: calc(var(--base) / 2);
+  }
+}
