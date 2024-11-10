@@ -1,20 +1,20 @@
 {
   "compilerOptions": {
     "esModuleInterop": true,
-    "target": "es5",
+    "target": "esnext",           // ESNext ile en güncel özellikleri kullan
     "lib": [
       "dom",
       "dom.iterable",
-      "esnext"
+      "esnext"                     // ESNext özelliklerini dahil et
     ],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": false,
+    "strict": false,              // Hata denetimini açabilirsiniz (geliştirme için)
     "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
+    "noEmit": true,               // TypeScript dosyaları derlenmez
     "incremental": true,
     "jsx": "preserve",
-    "module": "CommonJS",
+    "module": "ESNext",           // ESNext modül sistemi (import/export)
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -24,7 +24,7 @@
       }
     ],
     "paths": {
-      "react": ["./node_modules/@types/react"],
+      "react": ["./node_modules/@types/react"]
     }
   },
   "include": [
