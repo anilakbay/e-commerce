@@ -1,4 +1,27 @@
-@use '../../_css/type.scss' as *;
+@use '../../_css/type.scss' as *;  // Bu satır, type.scss dosyasındaki tüm değişkenleri ve mixin'leri kullanmanızı sağlar
+@use '../../_css/queries.scss' as *; // `mid-break` mixin'inin tanımlandığı dosyayı da burada import etmelisiniz
 
 .lowImpactHero {
+  background-color: var(--color-light-background);  // Düzgün bir arka plan rengi eklenebilir
+  padding: var(--base) 0;  // Genel boşluklar için bir padding
+  text-align: center;  // İçeriğin ortalanması
+
+  .content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--base) 2rem;  // İçerik çevresinde daha fazla boşluk
+
+    @include mid-break {  // Ekran boyutuna göre responsive ayarları
+      padding: var(--base) 1rem;  // Orta ekran boyutlarında padding'i azalt
+    }
+  }
+
+  .richText {
+    font-size: var(--font-size-large);
+    color: var(--color-dark-text);
+
+    @include mid-break {  // Ekran boyutuna göre font boyutunu küçültme
+      font-size: var(--font-size-medium);
+    }
+  }
 }

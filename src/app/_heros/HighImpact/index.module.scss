@@ -5,6 +5,7 @@
   position: relative;
   overflow: hidden;
 
+  // Mid-break query için stil
   @include mid-break {
     padding-top: var(--gutter-h);
   }
@@ -16,6 +17,7 @@
   margin-top: calc(var(--base) * 3);
   position: relative;
 
+  // Mid-break query için stil
   @include mid-break {
     left: 0;
     margin-top: var(--base);
@@ -45,6 +47,7 @@
   width: calc(100% - var(--gutter-h));
   position: relative;
 
+  // Mid-break query için stil
   @include mid-break {
     left: var(--gutter-h);
   }
